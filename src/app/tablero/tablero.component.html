@@ -1,0 +1,26 @@
+<div #boardContainer class="board-container">
+  @for (day of weekDays; track day) {
+    <div class="day-column">
+      <div class="day-header">{{ day }}</div>
+
+      <!-- generamos los N slots del día -->
+      @for (idx of range(); track idx) {
+        <div class="day-slot" [attr.data-swapy-slot]="day + '-' + idx">
+
+          @if (empAt(day + '-' + idx)) {
+            <div class="employee-card"
+                 [attr.data-swapy-item]="empAt(day + '-' + idx)!.id">
+
+              <img [src]="empAt(day + '-' + idx)!.image"
+                   alt="photo"
+                   class="avatar" />
+              <span class="employee-name">
+                {{ empAt(day + '-' + idx)!.name }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
