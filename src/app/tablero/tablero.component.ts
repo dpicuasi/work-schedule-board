@@ -1,11 +1,57 @@
 import {
-  AfterViewInit, ChangeDetectorRef, Component,
-  ElementRef, NgZone, OnDestroy, ViewChild
+  Component, ChangeDetectorRef, NgZone, OnDestroy
 } from '@angular/core';
-import { createSwapy, type Swapy } from 'swapy';
 
-interface Employee { id: string; name: string; image: string; }
-const MAX_SLOTS_PER_DAY = 8;
+// Interfaces para modelar los datos
+interface Employee { 
+  id: string; 
+  name: string; 
+  image: string; 
+}
+
+interface Column {
+  id: string;
+  title: string;
+  items: Employee[];
+}
+
+interface ColumnMap {
+  [key: string]: Column;
+}
+
+interface BoardState {
+  columnMap: ColumnMap;
+  orderedColumnIds: string[];
+  lastOperation: Operation | null;
+}
+
+type Outcome =
+  | {
+      type: 'card-reorder';
+      columnId: string;
+      startIndex: number;
+      finishIndex: number;
+    }
+  | {
+      type: 'card-move';
+      startColumnId: string;
+      finishColumnId: string;
+      itemIndexInStartColumn: number;
+      itemIndexInFinishColumn: number;
+    };
+
+type Trigger = 'pointer' | 'keyboard';
+
+interface Operation {
+  trigger: Trigger;
+  outcome: Outcome;
+}
+
+interface DragData {
+  employeeId: string;
+  sourceColumnId: string;
+  sourceIndex: number;
+}
 
 @Component({
   selector: 'app-tablero',
@@ -13,16 +59,14 @@ const MAX_SLOTS_PER_DAY = 8;
   templateUrl: './tablero.component.html',
   styleUrls: ['./tablero.component.scss']
 })
-export class TableroComponent implements AfterViewInit, OnDestroy {
+export class TableroComponent implements OnDestroy {
+  // Estado del tablero
+  boardState: BoardState;
 
-  @ViewChild('boardContainer', { static: true })
-  boardContainer!: ElementRef<HTMLElement>;
+  // Datos del elemento que se está arrastrando
+  private dragData: DragData | null = null;
 
-  private swapy!: Swapy;
-
-  weekDays = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
-
-  /** catálogo de empleados */
+  // Catálogo de empleados
   private readonly employees: Record<string, Employee> = {
     '1': { id: '1', name: 'Ana',    image: 'assets/person.png' },
     '2': { id: '2', name: 'Luis',   image: 'assets/person.png' },
@@ -34,66 +78,171 @@ export class TableroComponent implements AfterViewInit, OnDestroy {
     '8': { id: '8', name: 'Lucas',  image: 'assets/person.png' },
   };
 
-  /** slotId → empleado */
-  slotMap: Record<string, Employee | null> = {};
-
-  /** rango fijo para no crear arrays nuevos en cada CD */
-  readonly slots = Array.from({ length: MAX_SLOTS_PER_DAY }, (_, i) => i);
-
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly zone: NgZone,
   ) {
-    // -------- estado inicial ----------
-    for (const d of this.weekDays) {
-      for (let i = 0; i < MAX_SLOTS_PER_DAY; i++) {
-        this.slotMap[`${d}-${i}`] = null;
-      }
-    }
-
-    this.slotMap['Lunes-0']     = this.employees['1'];
-    this.slotMap['Lunes-1']     = this.employees['2'];
-    this.slotMap['Martes-0']    = this.employees['3'];
-    this.slotMap['Miercoles-0'] = this.employees['4'];
-    this.slotMap['Miercoles-1'] = this.employees['5'];
-    this.slotMap['Jueves-0']    = this.employees['6'];
-    this.slotMap['Viernes-0']   = this.employees['7'];
-    this.slotMap['Viernes-1']   = this.employees['8'];
-  }
-
-  ngAfterViewInit(): void {
-    this.swapy = createSwapy(this.boardContainer.nativeElement, {
-      animation: 'dynamic',
-      autoScrollOnDrag: true
+    // Inicializar el estado del tablero
+    const columnMap: ColumnMap = {};
+    const weekDays = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+    
+    // Crear columnas para cada día de la semana
+    weekDays.forEach(day => {
+      columnMap[day] = {
+        id: day,
+        title: day,
+        items: []
+      };
     });
 
-    // ► 1. usamos onSwapEnd
-    this.swapy.onSwapEnd(({ slotItemMap, hasChanged }) => {
-      if (!hasChanged) return;          // click sin mover
+    // Asignar empleados a las columnas inicialmente
+    columnMap['Lunes'].items.push(this.employees['1'], this.employees['2']);
+    columnMap['Martes'].items.push(this.employees['3']);
+    columnMap['Miercoles'].items.push(this.employees['4'], this.employees['5']);
+    columnMap['Jueves'].items.push(this.employees['6']);
+    columnMap['Viernes'].items.push(this.employees['7'], this.employees['8']);
 
-      // ► 2. diferimos la actualización un frame
-      requestAnimationFrame(() => {
-        const obj = slotItemMap.asObject as Record<string, string | undefined>;
-
-        Object.keys(this.slotMap).forEach(slotId => {
-          const empId = obj[slotId];
-          this.slotMap[slotId] = empId ? this.employees[empId] : null;
-        });
-
-        // dentro de zona de Angular para que refresque vista
-        this.zone.run(() => {
-          this.cdr.detectChanges();
-          // ► 3. pedimos a Swapy que re‑escanee
-          this.swapy.update();
-        });
-      });
-    });
+    this.boardState = {
+      columnMap,
+      orderedColumnIds: weekDays,
+      lastOperation: null
+    };
   }
 
   ngOnDestroy(): void {
-    this.swapy?.destroy();
+    // No hay nada que limpiar en esta implementación
   }
 
-  /* helpers para la plantilla */
-  empAt(slotId: string) { return this.slotMap[slotId]; }
+  // Evento que se dispara cuando se comienza a arrastrar un elemento
+  onDragStart(event: DragEvent, employeeId: string, columnId: string, index: number): void {
+    if (!event.dataTransfer) return;
+    
+    // Guardar información sobre el elemento que se está arrastrando
+    this.dragData = {
+      employeeId,
+      sourceColumnId: columnId,
+      sourceIndex: index
+    };
+    
+    // Configurar el efecto de arrastre
+    event.dataTransfer.effectAllowed = 'move';
+    
+    // Hacer que el elemento sea semitransparente durante el arrastre
+    const target = event.target as HTMLElement;
+    setTimeout(() => {
+      target.style.opacity = '0.4';
+    }, 0);
+  }
+
+  // Evento que se dispara cuando se termina de arrastrar un elemento
+  onDragEnd(event: DragEvent): void {
+    // Restaurar la opacidad del elemento
+    const target = event.target as HTMLElement;
+    target.style.opacity = '1';
+  }
+
+  // Evento que se dispara cuando se arrastra sobre un elemento
+  onDragOver(event: DragEvent): void {
+    // Prevenir el comportamiento predeterminado para permitir soltar
+    event.preventDefault();
+    
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  // Evento que se dispara cuando se suelta un elemento
+  onDrop(event: DragEvent, targetColumnId: string): void {
+    event.preventDefault();
+    
+    // Si no hay datos de arrastre, no hacer nada
+    if (!this.dragData) return;
+    
+    const { employeeId, sourceColumnId, sourceIndex } = this.dragData;
+    
+    // Obtener el empleado que se está moviendo
+    const employee = this.employees[employeeId];
+    if (!employee) return;
+    
+    // Si es la misma columna, reordenar
+    if (sourceColumnId === targetColumnId) {
+      this.reorderCard(sourceColumnId, sourceIndex, this.boardState.columnMap[targetColumnId].items.length);
+    } else {
+      // Si es una columna diferente, mover
+      this.moveCard(
+        sourceColumnId, 
+        targetColumnId, 
+        sourceIndex, 
+        this.boardState.columnMap[targetColumnId].items.length
+      );
+    }
+    
+    // Limpiar los datos de arrastre
+    this.dragData = null;
+  }
+
+  // Reordena una tarjeta dentro de una columna
+  reorderCard(columnId: string, startIndex: number, finishIndex: number, trigger: Trigger = 'pointer'): void {
+    const column = this.boardState.columnMap[columnId];
+    const items = [...column.items];
+    const [removed] = items.splice(startIndex, 1);
+    items.splice(finishIndex, 0, removed);
+
+    this.boardState.columnMap[columnId].items = items;
+    this.boardState.lastOperation = {
+      trigger,
+      outcome: {
+        type: 'card-reorder',
+        columnId,
+        startIndex,
+        finishIndex
+      }
+    };
+
+    this.cdr.detectChanges();
+  }
+
+  // Mueve una tarjeta de una columna a otra
+  moveCard(
+    startColumnId: string, 
+    finishColumnId: string, 
+    itemIndexInStartColumn: number, 
+    itemIndexInFinishColumn: number, 
+    trigger: Trigger = 'pointer'
+  ): void {
+    const sourceColumn = this.boardState.columnMap[startColumnId];
+    const destinationColumn = this.boardState.columnMap[finishColumnId];
+    
+    // No hacer nada si es la misma columna
+    if (startColumnId === finishColumnId) return;
+
+    // Obtener el elemento a mover
+    const item = sourceColumn.items[itemIndexInStartColumn];
+    
+    // Eliminar de la columna de origen
+    sourceColumn.items = sourceColumn.items.filter((_, i) => i !== itemIndexInStartColumn);
+    
+    // Añadir a la columna de destino
+    const destinationItems = [...destinationColumn.items];
+    destinationItems.splice(itemIndexInFinishColumn, 0, item);
+    destinationColumn.items = destinationItems;
+
+    this.boardState.lastOperation = {
+      trigger,
+      outcome: {
+        type: 'card-move',
+        startColumnId,
+        finishColumnId,
+        itemIndexInStartColumn,
+        itemIndexInFinishColumn
+      }
+    };
+
+    this.cdr.detectChanges();
+  }
+
+  // Helpers para la plantilla
+  getColumns(): Column[] {
+    return this.boardState.orderedColumnIds.map(id => this.boardState.columnMap[id]);
+  }
 }

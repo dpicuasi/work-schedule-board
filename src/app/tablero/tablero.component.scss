@@ -53,18 +53,138 @@
     font-weight: bold;
   }
   
-  .board-container {
-     display: flex;
-     gap: 1rem;
-     justify-content: space-between;
-     background: #304d78;
-     padding: 20px;
-     border-radius: 10px;
-     
+  // Variables
+$background-color: #f4f5f7;
+$column-background: #ebecf0;
+$header-background: #42526e;
+$card-background: #ffffff;
+$border-radius: 8px;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+$transition: all 0.2s ease;
+
+// Contenedor principal del tablero
+.board-container {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  background: $background-color;
+  min-height: 600px;
+  overflow-x: auto;
+  border-radius: $border-radius;
+}
+
+// Columnas del tablero
+.day-column {
+  display: flex;
+  flex-direction: column;
+  background: $column-background;
+  border-radius: $border-radius;
+  width: 280px;
+  min-width: 280px;
+  max-height: 100%;
+  box-shadow: $shadow;
+  transition: $transition;
+  
+  &:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   }
-.day-column      { flex: 1; display: flex; flex-direction: column; gap: .5rem; }
-.day-slot        { border: 1px dashed #bbb; min-height: 60px; display: flex;
-                   align-items: center; justify-content: center; }
-.employee-card   { padding: .4rem .6rem; background:#fff; border:1px solid #ccc;
-                   border-radius: 6px; display:flex; gap:.5rem; cursor:grab; }
-.avatar          { width:32px; height:32px; border-radius:50%; object-fit:cover; }
+}
+
+// Encabezado de columna
+.day-header {
+  background: $header-background;
+  color: white;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+  margin-bottom: 0;
+}
+
+// Contenido de la columna
+.column-content {
+  padding: 8px;
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+// Slot para tarjetas
+.card-slot {
+  margin-bottom: 8px;
+  min-height: 20px;
+}
+
+// Tarjeta de empleado
+.employee-card {
+  background: $card-background;
+  border-radius: $border-radius;
+  padding: 12px;
+  box-shadow: $shadow;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: grab;
+  transition: $transition;
+  
+  &:hover {
+    background: darken($card-background, 2%);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  }
+  
+  &:active {
+    cursor: grabbing;
+    transform: scale(1.02);
+  }
+}
+
+// Avatar del empleado
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+// Nombre del empleado
+.employee-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: #172b4d;
+}
+
+// Placeholder para columna vacía
+.empty-column-placeholder {
+  color: #6b778c;
+  text-align: center;
+  padding: 16px;
+  font-size: 14px;
+  border: 2px dashed #dfe1e6;
+  border-radius: $border-radius;
+  margin: 8px 0;
+}
+
+.empty-placeholder-content {
+  padding: 8px;
+}
+
+// Slot vacío
+.empty-slot {
+  min-height: 16px;
+  border-radius: $border-radius;
+  
+  &:hover {
+    background: rgba(9, 30, 66, 0.04);
+  }
+}
+
+// Información de operación (opcional, para depuración)
+.operation-info {
+  margin-top: 16px;
+  padding: 12px;
+  background: #e3fcef;
+  border-radius: $border-radius;
+  color: #006644;
+  font-size: 14px;
+}
