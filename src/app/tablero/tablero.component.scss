@@ -61,16 +61,34 @@ $card-background: #ffffff;
 $border-radius: 8px;
 $shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 $transition: all 0.2s ease;
+$primary-color: #0052cc;
+$success-color: #36b37e;
 
 // Contenedor principal del tablero
 .board-container {
   display: flex;
-  gap: 16px;
+  flex-direction: column;
   padding: 24px;
   background: $background-color;
-  min-height: 600px;
-  overflow-x: auto;
   border-radius: $border-radius;
+}
+
+// Título del tablero
+.board-title {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: #172b4d;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+// Contenedor de columnas
+.columns-container {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  min-height: 600px;
 }
 
 // Columnas del tablero
@@ -187,4 +205,111 @@ $transition: all 0.2s ease;
   border-radius: $border-radius;
   color: #006644;
   font-size: 14px;
+}
+
+// Contenedor de acciones
+.actions-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  background: $background-color;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+  border-bottom: 1px solid darken($background-color, 5%);
+}
+
+// Botón para compartir
+.share-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  border-radius: $border-radius;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  box-shadow: $shadow;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.share-icon {
+  font-size: 18px;
+}
+
+// Indicador de carga
+.loading-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 16px 24px;
+  border-radius: $border-radius;
+  z-index: 1000;
+  font-weight: 500;
+}
+
+// Mensaje de éxito
+.success-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: $success-color;
+  color: white;
+  padding: 16px 24px;
+  border-radius: $border-radius;
+  z-index: 1000;
+  font-weight: 500;
+}
+
+// Instrucciones
+.instructions-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  color: #172b4d;
+  padding: 24px;
+  border-radius: $border-radius;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-width: 400px;
+  
+  p {
+    margin-top: 0;
+    font-weight: 500;
+  }
+  
+  ol {
+    margin-bottom: 0;
+    padding-left: 20px;
+  }
+  
+  li {
+    margin-bottom: 8px;
+  }
+  
+  a {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }

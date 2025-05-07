@@ -1,6 +1,7 @@
 import {
-  Component, ChangeDetectorRef, NgZone, OnDestroy
+  Component, ChangeDetectorRef, NgZone, OnDestroy, ViewChild, ElementRef, OnInit
 } from '@angular/core';
+import html2canvas from 'html2canvas';
 
 // Interfaces para modelar los datos
 interface Employee { 
@@ -59,7 +60,12 @@ interface DragData {
   templateUrl: './tablero.component.html',
   styleUrls: ['./tablero.component.scss']
 })
-export class TableroComponent implements OnDestroy {
+export class TableroComponent implements OnDestroy, OnInit {
+  @ViewChild('boardRef') boardRef!: ElementRef;
+
+  // Título del horario
+  title = '';
+
   // Estado del tablero
   boardState: BoardState;
 
@@ -107,6 +113,51 @@ export class TableroComponent implements OnDestroy {
       orderedColumnIds: weekDays,
       lastOperation: null
     };
+  }
+
+  ngOnInit() {
+    this.updateTitle();
+  }
+
+  /**
+   * Actualiza el título con el rango de fechas de la próxima semana laboral (lunes a viernes)
+   */
+  updateTitle(): void {
+    // Obtener la fecha actual
+    const today = new Date();
+    
+    // Calcular el próximo lunes
+    const nextMonday = new Date(today);
+    const dayOfWeek = today.getDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
+    
+    // Ajustar para que el primer día sea lunes (no domingo como es por defecto en JS)
+    const daysUntilNextMonday = (dayOfWeek === 0) ? 1 : (8 - dayOfWeek);
+    nextMonday.setDate(today.getDate() + daysUntilNextMonday);
+    
+    // Calcular el próximo viernes (4 días después del lunes)
+    const nextFriday = new Date(nextMonday);
+    nextFriday.setDate(nextMonday.getDate() + 4);
+    
+    // Formatear las fechas en español
+    const mondayFormatted = this.formatDateInSpanish(nextMonday);
+    const fridayFormatted = this.formatDateInSpanish(nextFriday);
+    
+    // Actualizar el título
+    this.title = `HORARIO DE DESARROLLO DEL ${mondayFormatted} AL ${fridayFormatted}`;
+  }
+
+  /**
+   * Formatea una fecha en español con el formato "DD DE MES"
+   */
+  private formatDateInSpanish(date: Date): string {
+    const day = date.getDate();
+    const monthNames = [
+      'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+      'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+    ];
+    const month = monthNames[date.getMonth()];
+    
+    return `${day} DE ${month}`;
   }
 
   ngOnDestroy(): void {
@@ -244,5 +295,110 @@ export class TableroComponent implements OnDestroy {
   // Helpers para la plantilla
   getColumns(): Column[] {
     return this.boardState.orderedColumnIds.map(id => this.boardState.columnMap[id]);
+  }
+
+  // Captura el tablero como imagen y lo comparte por WhatsApp
+  async captureAndShareBoard(): Promise<void> {
+    try {
+      // Mostrar un indicador de carga
+      const loadingElement = document.createElement('div');
+      loadingElement.className = 'loading-indicator';
+      loadingElement.textContent = 'Capturando imagen...';
+      document.body.appendChild(loadingElement);
+
+      // Capturar el tablero como imagen
+      const boardElement = this.boardRef.nativeElement;
+      const canvas = await html2canvas(boardElement, {
+        scale: 2, // Mayor calidad
+        useCORS: true, // Permitir imágenes de otros dominios
+        backgroundColor: '#f4f5f7' // Fondo del tablero
+      });
+      
+      // Convertir el canvas a una imagen
+      const imageData = canvas.toDataURL('image/png');
+      
+      // Crear un título para la imagen (fecha actual)
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('es-ES');
+      const timeStr = now.toLocaleTimeString('es-ES');
+      const title = `Horario_${dateStr.replace(/\//g, '-')}_${timeStr.replace(/:/g, '-')}`;
+      
+      // Eliminar el indicador de carga
+      document.body.removeChild(loadingElement);
+      
+      // Mostrar mensaje de éxito
+      const successElement = document.createElement('div');
+      successElement.className = 'success-message';
+      successElement.textContent = 'Imagen capturada. Abriendo opciones de compartir...';
+      document.body.appendChild(successElement);
+      
+      // Método 1: Intentar usar la API de compartir nativa si está disponible
+      if (navigator.share && navigator.canShare) {
+        try {
+          // Convertir la imagen a un archivo
+          const blob = this.dataURItoBlob(imageData);
+          const file = new File([blob], `${title}.png`, { type: 'image/png' });
+          
+          // Verificar si podemos compartir archivos
+          const shareData = {
+            title: this.title,
+            text: `${this.title}`,
+            files: [file]
+          };
+          
+          if (navigator.canShare(shareData)) {
+            await navigator.share(shareData);
+            document.body.removeChild(successElement);
+            return;
+          }
+        } catch (shareError) {
+          console.log('Error al usar la API de compartir:', shareError);
+          // Continuar con el método alternativo
+        }
+      }
+      
+      // Método 2: Descargar la imagen y abrir WhatsApp con un mensaje
+      const link = document.createElement('a');
+      link.href = imageData;
+      link.download = `${title}.png`;
+      link.click();
+      
+      // Crear mensaje para compartir por WhatsApp
+      const message = `${this.title}. Por favor, adjunta la imagen que acabo de descargar.`;
+      
+      // Número de teléfono para WhatsApp (vacío para abrir chat general)
+      const phoneNumber = ''; // Puedes especificar un número aquí si lo deseas
+      
+      // Abrir WhatsApp
+      const whatsappUrl = phoneNumber 
+        ? `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+      
+      // Abrir WhatsApp en una nueva pestaña
+      window.open(whatsappUrl, '_blank');
+      
+      // Eliminar el mensaje de éxito después de un breve retraso
+      setTimeout(() => {
+        document.body.removeChild(successElement);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error al capturar el tablero:', error);
+      alert('Hubo un error al capturar el tablero. Por favor, inténtalo de nuevo.');
+    }
+  }
+  
+  // Función auxiliar para convertir Data URI a Blob
+  private dataURItoBlob(dataURI: string): Blob {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    
+    return new Blob([ab], { type: mimeString });
   }
 }

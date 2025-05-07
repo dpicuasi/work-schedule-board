@@ -1,41 +1,51 @@
-<div class="board-container">
-  @for (column of getColumns(); track column.id) {
-    <div class="day-column">
-      <div class="day-header">{{ column.title }}</div>
-      
-      <div class="column-content" 
-           (dragover)="onDragOver($event)" 
-           (drop)="onDrop($event, column.id)">
-        @for (item of column.items; track item.id; let i = $index) {
-          <div class="card-slot">
-            <div class="employee-card" 
-                 draggable="true"
-                 (dragstart)="onDragStart($event, item.id, column.id, i)"
-                 (dragend)="onDragEnd($event)">
-              <img [src]="item.image" class="avatar" alt="{{ item.name }}" />
-              <span class="employee-name">{{ item.name }}</span>
-            </div>
-          </div>
-        }
+<div class="actions-container">
+  <button class="share-button" (click)="captureAndShareBoard()">
+    <i class="share-icon">📱</i> Compartir por WhatsApp
+  </button>
+</div>
+
+<div class="board-container" #boardRef>
+  <h1 class="board-title">{{ title }}</h1>
+  
+  <div class="columns-container">
+    @for (column of getColumns(); track column.id) {
+      <div class="day-column">
+        <div class="day-header">{{ column.title }}</div>
         
-        <!-- Espacio vacío para permitir soltar elementos cuando la columna está vacía -->
-        @if (column.items.length === 0) {
-          <div class="empty-column-placeholder">
-            <div class="empty-placeholder-content">
-              Arrastra empleados aquí
+        <div class="column-content" 
+             (dragover)="onDragOver($event)" 
+             (drop)="onDrop($event, column.id)">
+          @for (item of column.items; track item.id; let i = $index) {
+            <div class="card-slot">
+              <div class="employee-card" 
+                   draggable="true"
+                   (dragstart)="onDragStart($event, item.id, column.id, i)"
+                   (dragend)="onDragEnd($event)">
+                <img [src]="item.image" class="avatar" alt="{{ item.name }}" />
+                <span class="employee-name">{{ item.name }}</span>
+              </div>
             </div>
-          </div>
-        }
-        
-        <!-- Slots adicionales para permitir más elementos -->
-        @for (i of [column.items.length]; track i) {
-          <div class="card-slot empty-slot">
-            <!-- Slot vacío para permitir soltar elementos al final de la columna -->
-          </div>
-        }
+          }
+          
+          <!-- Espacio vacío para permitir soltar elementos cuando la columna está vacía -->
+          @if (column.items.length === 0) {
+            <div class="empty-column-placeholder">
+              <div class="empty-placeholder-content">
+                Arrastra empleados aquí
+              </div>
+            </div>
+          }
+          
+          <!-- Slots adicionales para permitir más elementos -->
+          @for (i of [column.items.length]; track i) {
+            <div class="card-slot empty-slot">
+              <!-- Slot vacío para permitir soltar elementos al final de la columna -->
+            </div>
+          }
+        </div>
       </div>
-    </div>
-  }
+    }
+  </div>
 </div>
 
 <!-- Mensaje de última operación (opcional, para depuración) -->
