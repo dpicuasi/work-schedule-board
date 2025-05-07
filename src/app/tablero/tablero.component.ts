@@ -1,6 +1,7 @@
 import {
   Component, ChangeDetectorRef, NgZone, OnDestroy, ViewChild, ElementRef, OnInit
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import html2canvas from 'html2canvas';
 
 // Interfaces para modelar los datos
@@ -8,6 +9,7 @@ interface Employee {
   id: string; 
   name: string; 
   image: string; 
+  status: 'available' | 'busy' | 'on-leave'; // Estado del empleado
 }
 
 interface Column {
@@ -57,6 +59,7 @@ interface DragData {
 @Component({
   selector: 'app-tablero',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './tablero.component.html',
   styleUrls: ['./tablero.component.scss']
 })
@@ -74,14 +77,18 @@ export class TableroComponent implements OnDestroy, OnInit {
 
   // Catálogo de empleados
   private readonly employees: Record<string, Employee> = {
-    '1': { id: '1', name: 'Ana',    image: 'assets/person.png' },
-    '2': { id: '2', name: 'Luis',   image: 'assets/person.png' },
-    '3': { id: '3', name: 'Carlos', image: 'assets/person.png' },
-    '4': { id: '4', name: 'Daniel', image: 'assets/person.png' },
-    '5': { id: '5', name: 'Jose',   image: 'assets/person.png' },
-    '6': { id: '6', name: 'Kevin',  image: 'assets/person.png' },
-    '7': { id: '7', name: 'Jorge',  image: 'assets/person.png' },
-    '8': { id: '8', name: 'Lucas',  image: 'assets/person.png' },
+    '1': { id: '1', name: 'Daniel Picuasi',    image: 'assets/person.png', status: 'available' },
+    '2': { id: '2', name: 'Danilo Cadena',   image: 'assets/person.png', status: 'available' },
+    '3': { id: '3', name: 'Angelo Andy', image: 'assets/person.png', status: 'available' },
+    '4': { id: '4', name: 'Darwin Aldas', image: 'assets/person.png', status: 'available' },
+    '5': { id: '5', name: 'Roberto Guizado',   image: 'assets/person.png', status: 'available' },
+    '6': { id: '6', name: 'Jorge Reyes',  image: 'assets/person.png', status: 'available' },
+    '7': { id: '7', name: 'Rosa Llumigusin',  image: 'assets/person.png', status: 'available' },
+    '8': { id: '8', name: 'Jorge Lucas',  image: 'assets/person.png', status: 'available' },
+    '9': { id: '9', name: 'Kevin Suarez',  image: 'assets/person.png', status: 'available' },
+    '10': { id: '10', name: 'Marlene Rivera',  image: 'assets/person.png', status: 'available' },
+    '11': { id: '11', name: 'Laura Llangari',  image: 'assets/person.png', status: 'available' },
+    '12': { id: '12', name: 'Diego Ramirez',  image: 'assets/person.png', status: 'available' },
   };
 
   constructor(
@@ -102,11 +109,11 @@ export class TableroComponent implements OnDestroy, OnInit {
     });
 
     // Asignar empleados a las columnas inicialmente
-    columnMap['Lunes'].items.push(this.employees['1'], this.employees['2']);
-    columnMap['Martes'].items.push(this.employees['3']);
-    columnMap['Miercoles'].items.push(this.employees['4'], this.employees['5']);
-    columnMap['Jueves'].items.push(this.employees['6']);
-    columnMap['Viernes'].items.push(this.employees['7'], this.employees['8']);
+    columnMap['Lunes'].items.push(this.employees['11'], this.employees['12']);
+    columnMap['Martes'].items.push(this.employees['10']);
+    columnMap['Miercoles'].items.push(this.employees['5'], this.employees['1'], this.employees['6'], this.employees['8'], this.employees['7'], this.employees['2'], this.employees['9']);
+    columnMap['Jueves'].items.push(this.employees['4']);
+    columnMap['Viernes'].items.push(this.employees['3']);
 
     this.boardState = {
       columnMap,

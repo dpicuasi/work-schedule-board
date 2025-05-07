@@ -1,11 +1,26 @@
 <div class="actions-container">
-  <button class="share-button" (click)="captureAndShareBoard()">
-    <i class="share-icon">📱</i> Compartir por WhatsApp
+  <button class="share-button" (click)="captureAndShareBoard()" title="Compartir por WhatsApp">
+    <i class="share-icon">🔗</i><i class="whatsapp-icon">📱</i>
   </button>
 </div>
 
 <div class="board-container" #boardRef>
   <h1 class="board-title">{{ title }}</h1>
+  
+  <div class="status-legend">
+    <div class="legend-item">
+      <span class="legend-dot status-available-dot"></span>
+      <span>Disponible</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot status-busy-dot"></span>
+      <span>Ocupado</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot status-on-leave-dot"></span>
+      <span>Ausente</span>
+    </div>
+  </div>
   
   <div class="columns-container">
     @for (column of getColumns(); track column.id) {
@@ -20,9 +35,13 @@
               <div class="employee-card" 
                    draggable="true"
                    (dragstart)="onDragStart($event, item.id, column.id, i)"
-                   (dragend)="onDragEnd($event)">
+                   (dragend)="onDragEnd($event)"
+                   [ngClass]="'status-' + item.status">
                 <img [src]="item.image" class="avatar" alt="{{ item.name }}" />
                 <span class="employee-name">{{ item.name }}</span>
+                <span class="status-indicator" [title]="item.status">
+                  <span class="status-dot"></span>
+                </span>
               </div>
             </div>
           }
