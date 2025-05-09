@@ -1,10 +1,15 @@
-<div class="actions-container">
+<div class="floating-buttons">
   <button class="share-button" (click)="captureAndShareBoard()" title="Compartir por WhatsApp">
-    <i class="share-icon">🔗</i><i class="whatsapp-icon">📱</i>
+    <img src="/assets/images/whatsapp.png" alt="WhatsApp" />
+  </button>
+  <button class="theme-toggle-button" (click)="toggleTheme()" title="Cambiar tema">
+    <span *ngIf="isDarkMode; else lightMode">🌙</span>
+    <ng-template #lightMode>☀️</ng-template>
   </button>
 </div>
 
 <div class="board-container" #boardRef>
+  <img src="/assets/images/favicon.png" width="90" height="90" alt="Logo" />
   <h1 class="board-title">{{ title }}</h1>
   
   <div class="status-legend">
@@ -50,7 +55,7 @@
           @if (column.items.length === 0) {
             <div class="empty-column-placeholder">
               <div class="empty-placeholder-content">
-                Arrastra empleados aquí
+                Arrastra colaboradores aquí
               </div>
             </div>
           }

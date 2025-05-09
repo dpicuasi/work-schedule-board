@@ -64,6 +64,8 @@ interface DragData {
   styleUrls: ['./tablero.component.scss']
 })
 export class TableroComponent implements OnDestroy, OnInit {
+  isDarkMode = false;
+
   @ViewChild('boardRef') boardRef!: ElementRef;
 
   // Título del horario
@@ -124,6 +126,17 @@ export class TableroComponent implements OnDestroy, OnInit {
 
   ngOnInit() {
     this.updateTitle();
+    // Detectar si ya hay un modo oscuro activo
+    this.isDarkMode = document.body.classList.contains('dark-mode');
+  }
+
+  toggleTheme(): void {
+    this.isDarkMode = !this.isDarkMode;
+    if (this.isDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
   }
 
   /**

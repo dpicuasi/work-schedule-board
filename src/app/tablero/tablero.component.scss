@@ -88,7 +88,7 @@
   
   // Variables
 $background-color: #f8f9fa;
-$column-background: #ffffff;
+//$column-background: #2c2c2c;
 $header-background: #4285f4;
 $card-background: #ffffff;
 $border-radius: 12px;
@@ -104,54 +104,189 @@ $font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, U
   color: #3c4043;
 }
 
+body {
+  margin: 0;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background: #f8f9fa;
+  color: #3c4043;
+  transition: background 0.3s, color 0.3s;
+  -webkit-transition: background 0.3s, color 0.3s;
+  -moz-transition: background 0.3s, color 0.3s;
+  -ms-transition: background 0.3s, color 0.3s;
+  -o-transition: background 0.3s, color 0.3s;
+}
+
+body.dark-mode {
+  background: #15191e;
+  color: #f5f6fa;
+}
+
+body.dark-mode .board-container {
+  background: linear-gradient(135deg, #23272f 60%, #23262b 100%) !important;
+  color: #f5f6fa !important;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.7), 0 1.5px 6px rgba(80,80,80,0.12);
+  border-radius: 18px;
+  border: 1.5px solid #22262c;
+  transition: background 0.4s, color 0.3s, box-shadow 0.3s, border 0.3s;
+  -webkit-border-radius: 18px;
+  -moz-border-radius: 18px;
+  -ms-border-radius: 18px;
+  -o-border-radius: 18px;
+}
+
+body.dark-mode .employee-card {
+  background: #23272f;
+  color: #f5f6fa;
+  border-left: 3px solid #4f8cff;
+}
+
+body.dark-mode .board-title {
+  color: #b5cfff;
+}
+
+body.dark-mode .share-button {
+  background-color: #128c7e;
+  color: #fff;
+}
+
+body.dark-mode .share-button:hover {
+  background-color: #075e54;
+}
+
+body.dark-mode .theme-toggle-button {
+  background: #23272f;
+  color: #ffe066;
+}
+
+body.dark-mode .theme-toggle-button:hover {
+  background: #2c313a;
+  color: #fffbe6;
+}
+
+body.dark-mode .status-legend {
+  color: #dbeafe;
+}
+
+body.dark-mode .legend-dot.status-available-dot {
+  background-color: #3fdc7a;
+}
+
+body.dark-mode .legend-dot.status-busy-dot {
+  background-color: #ffe066;
+}
+
+body.dark-mode .legend-dot.status-on-leave-dot {
+  background-color: #ff6b6b;
+}
+
+body.dark-mode .empty-column-placeholder {
+  background-color: #23272f;
+  border-color: #3c4043;
+  color: #b0b8c1;
+}
+
+body.dark-mode .columns-container {
+  background: #181b20 !important;
+}
+
+
+body.dark-mode .loading-indicator, body.dark-mode .success-message, body.dark-mode .instructions-message {
+  background: #23272f;
+  color: #ffe066;
+}
+
 // Contenedor de acciones
-.actions-container {
+.floating-buttons {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
   display: flex;
-  justify-content: flex-end;
-  padding: 16px;
-  background: $background-color;
-  border-top-left-radius: $border-radius;
-  border-top-right-radius: $border-radius;
-  
+  flex-direction: column;
+  gap: 16px;
+  z-index: 100;
+
   @media (max-width: 768px) {
-    justify-content: center;
-    padding: 12px;
+    bottom: 16px;
+    right: 16px;
+    gap: 10px;
   }
 }
+
+// Elimina .actions-container si existe.
 
 // Botón para compartir
 .share-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px;
-  width: 50px;
-  height: 50px;
-  background-color: #25D366; // Color de WhatsApp
+  gap: 0;
+  padding: 0;
+  width: 48px;
+  height: 48px;
+  background-color: #25D366;
   color: white;
   border: none;
   border-radius: 50%;
   cursor: pointer;
   transition: $transition;
   box-shadow: $shadow;
-  
+
+  img {
+    width: 28px;
+    height: 28px;
+  }
+
   &:hover {
     background-color: darken(#25D366, 10%);
     box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
     transform: translateY(-2px);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
-  
+
   @media (max-width: 768px) {
-    width: 45px;
-    height: 45px;
-    padding: 10px;
+    width: 38px;
+    height: 38px;
+    img {
+      width: 20px;
+      height: 20px;
+    }
   }
 }
+
+.theme-toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: #f1f3f4;
+  color: #222;
+  border: none;
+  border-radius: 50%;
+  box-shadow: $shadow;
+  font-size: 24px;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: #e0e0e0;
+    color: #111;
+  }
+
+  &:active {
+    background: #d1d1d1;
+  }
+
+  @media (max-width: 768px) {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+}
+
 
 .share-icon, .whatsapp-icon {
   font-size: 18px;
@@ -166,18 +301,20 @@ $font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, U
 .board-container {
   display: flex;
   flex-direction: column;
-  padding: 24px;
-  background: $background-color;
+  padding: 16px 24px 24px 24px;
   border-radius: $border-radius;
-  max-width: 1200px; 
+  max-width: 1200px;
   margin: 0 auto;
-  align-items: center; 
-  
+  align-items: center;
+  margin-top: 0;
+  // Elimina background aquí para evitar conflicto con dark mode
+
   @media (max-width: 768px) {
-    padding: 16px 12px;
+    padding: 10px 6px 16px 6px;
     border-radius: 0;
   }
 }
+
 
 // Título del tablero
 .board-title {
@@ -218,13 +355,14 @@ $font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, U
 .day-column {
   display: flex;
   flex-direction: column;
-  background: $column-background;
+  //background: $column-background;
   border-radius: $border-radius;
+  border: 2.5px solid #d1d5db;
+  box-shadow: 0 6px 24px 4px rgba(160,160,160,0.13);
   width: calc(20% - 13px); 
   min-width: 180px; 
   max-width: 220px; 
   max-height: 100%;
-  box-shadow: $shadow;
   transition: $transition;
   
   @media (max-width: 1200px) {
@@ -242,6 +380,16 @@ $font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, U
     width: 130px;
     max-width: 150px;
   }
+}
+
+body.dark-mode .day-column {
+  border: 2.5px solid #6b7280 !important;
+  box-shadow: 0 10px 32px 6px rgba(60,60,70,0.28) !important;
+}
+
+body.dark-mode .day-column {
+  background: #23262b !important;
+  color: #f5f6fa !important;
 }
 
 // Encabezado de columna
@@ -269,6 +417,9 @@ $font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, U
   flex-grow: 1;
   overflow-y: auto;
   max-height: 500px;
+  //background: $column-background;
+  color: #23272f;
+  transition: background 0.3s, color 0.3s;
   
   // Mejora el desplazamiento en dispositivos táctiles
   -webkit-overflow-scrolling: touch;
@@ -291,6 +442,40 @@ $font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, U
     padding: 8px;
     max-height: 400px;
   }
+}
+
+body.dark-mode .column-content {
+  background: #383737 !important;
+  color: #f5f6fa !important;
+}
+
+body.dark-mode .column-content .employee-card,
+body.dark-mode .column-content .employee-name,
+body.dark-mode .column-content .empty-slot {
+  background: #383737 !important;
+  color: #f5f6fa !important;
+}
+
+body.dark-mode .column-content .card-slot {
+  background: #383737 !important;
+}
+
+body.dark-mode .employee-card {
+  background: #23272f !important;
+  color: #f5f6fa !important;
+  border-left: 3px solid #4f8cff;
+}
+
+body.dark-mode .employee-name {
+  color: #fff !important;
+}
+
+body.dark-mode .card-slot {
+  background: transparent !important;
+}
+
+body.dark-mode .empty-slot {
+  background: #23262b !important;
 }
 
 // Slot para tarjetas
