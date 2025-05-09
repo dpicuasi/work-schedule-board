@@ -12,6 +12,7 @@ interface Employee {
   status: 'available' | 'busy' | 'on-leave'; // Estado del empleado
 }
 
+
 interface Column {
   id: string;
   title: string;
