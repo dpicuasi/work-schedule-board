@@ -80,18 +80,18 @@ export class TableroComponent implements OnDestroy, OnInit {
 
   // Catálogo de empleados
   private readonly employees: Record<string, Employee> = {
-    '1': { id: '1', name: 'Daniel Picuasi',    image: 'assets/person.png', status: 'available' },
-    '2': { id: '2', name: 'Danilo Cadena',   image: 'assets/person.png', status: 'available' },
-    '3': { id: '3', name: 'Angelo Andy', image: 'assets/person.png', status: 'available' },
-    '4': { id: '4', name: 'Darwin Aldas', image: 'assets/person.png', status: 'available' },
-    '5': { id: '5', name: 'Roberto Guizado',   image: 'assets/person.png', status: 'available' },
-    '6': { id: '6', name: 'Jorge Reyes',  image: 'assets/person.png', status: 'available' },
-    '7': { id: '7', name: 'Rosa Llumigusin',  image: 'assets/person.png', status: 'available' },
-    '8': { id: '8', name: 'Jorge Lucas',  image: 'assets/person.png', status: 'available' },
-    '9': { id: '9', name: 'Kevin Suarez',  image: 'assets/person.png', status: 'available' },
-    '10': { id: '10', name: 'Marlene Rivera',  image: 'assets/person.png', status: 'available' },
-    '11': { id: '11', name: 'Laura Llangari',  image: 'assets/person.png', status: 'available' },
-    '12': { id: '12', name: 'Diego Ramirez',  image: 'assets/person.png', status: 'available' },
+    '1': { id: '1', name: 'Daniel Picuasi',    image: 'assets/images/daniel.jpg', status: 'available' },
+    '2': { id: '2', name: 'Danilo Cadena',   image: 'assets/images/danilo.jpg', status: 'available' },
+    '3': { id: '3', name: 'Angelo Andy', image: 'assets/images/angelo.jpg', status: 'available' },
+    '4': { id: '4', name: 'Darwin Aldas', image: 'assets/images/darwin.jpg', status: 'available' },
+    '5': { id: '5', name: 'Roberto Guizado',   image: 'assets/images/roberto.jpg', status: 'available' },
+    '6': { id: '6', name: 'Jorge Reyes',  image: 'assets/images/jorger.jpg', status: 'available' },
+    '7': { id: '7', name: 'Rosa Llumigusin',  image: 'assets/images/rosita.jpg', status: 'available' },
+    '8': { id: '8', name: 'Jorge Lucas',  image: 'assets/images/jorgel.jpg', status: 'available' },
+    '9': { id: '9', name: 'Kevin Suarez',  image: 'assets/images/kevin.jpg', status: 'available' },
+    '10': { id: '10', name: 'Marlene Rivera',  image: 'assets/images/marlene.jpg', status: 'available' },
+    '11': { id: '11', name: 'Laura Llangari',  image: 'assets/images/laurita.jpg', status: 'available' },
+    '12': { id: '12', name: 'Diego Ramirez',  image: 'assets/images/diego.jpg', status: 'available' },
   };
 
   constructor(
