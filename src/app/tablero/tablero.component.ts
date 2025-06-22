@@ -223,7 +223,7 @@ export class TableroComponent implements OnDestroy, OnInit {
       console.log(`Cambiando de equipo: ${this.currentTeam} -> ${teamId}`);
       
       // Usar el Router de Angular para navegar sin recargar la página usando parámetros de consulta
-      this.router.navigate(['/tablero'], { 
+      this.router.navigate(['/'], { 
         queryParams: { team: teamId },
         replaceUrl: true 
       })
