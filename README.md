@@ -38,6 +38,12 @@ Esta aplicación permite gestionar horarios para múltiples equipos:
 - **Interfaz Unificada**: Mismo diseño y funcionalidad para todos los equipos
 - **Modo Oscuro**: Compatible con el selector de equipos y toda la interfaz
 
+## Comando para deployar y publicar en github pages
+
+```bash
+# deployar
+ng build --base-href=/work-schedule-board/browser/ --output-path=docs/
+
 ## Despliegue con Docker
 
 Para desplegar la aplicación usando Docker:
