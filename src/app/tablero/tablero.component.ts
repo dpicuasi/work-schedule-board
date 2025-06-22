@@ -139,8 +139,8 @@ export class TableroComponent implements OnDestroy, OnInit {
     this.isDarkMode = document.body.classList.contains('dark-mode');
     
     // Obtener el parámetro de equipo de la URL y suscribirse a cambios
-    this.route.paramMap.subscribe(params => {
-      const teamId = params.get('teamId');
+    this.route.queryParamMap.subscribe(params => {
+      const teamId = params.get('team');
       
       // Verificar si el equipo existe, si no, usar 'dev' por defecto
       if (teamId && this.teamEmployees[teamId]) {
@@ -222,23 +222,26 @@ export class TableroComponent implements OnDestroy, OnInit {
     if (this.currentTeam !== teamId && this.teamEmployees[teamId]) {
       console.log(`Cambiando de equipo: ${this.currentTeam} -> ${teamId}`);
       
-      // Usar el Router de Angular para navegar sin recargar la página
-      this.router.navigate(['/team', teamId], { skipLocationChange: false, replaceUrl: true })
-        .then(() => {
-          // El cambio de ruta activará ngOnInit que manejará la actualización del estado
-          console.log('Navegación completada a:', teamId);
-        })
-        .catch(error => {
-          console.error('Error al navegar:', error);
-          
-          // Si hay un error en la navegación, actualizar manualmente
-          this.currentTeam = teamId;
-          this.teamTitle = this.currentTeam === 'dev' ? 'Desarrollo' : 'Infraestructura';
-          this.employees = {...this.teamEmployees[this.currentTeam]};
-          this.initializeBoardState();
-          this.updateTitle();
-          this.cdr.detectChanges();
-        });
+      // Usar el Router de Angular para navegar sin recargar la página usando parámetros de consulta
+      this.router.navigate(['/tablero'], { 
+        queryParams: { team: teamId },
+        replaceUrl: true 
+      })
+      .then(() => {
+        // El cambio de parámetros activará ngOnInit que manejará la actualización del estado
+        console.log('Navegación completada a:', teamId);
+      })
+      .catch(error => {
+        console.error('Error al navegar:', error);
+        
+        // Si hay un error en la navegación, actualizar manualmente
+        this.currentTeam = teamId;
+        this.teamTitle = this.currentTeam === 'dev' ? 'Desarrollo' : 'Infraestructura';
+        this.employees = {...this.teamEmployees[this.currentTeam]};
+        this.initializeBoardState();
+        this.updateTitle();
+        this.cdr.detectChanges();
+      });
     }
   }
 
