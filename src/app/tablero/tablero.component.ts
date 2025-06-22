@@ -2,6 +2,7 @@ import {
   Component, ChangeDetectorRef, NgZone, OnDestroy, ViewChild, ElementRef, OnInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import html2canvas from 'html2canvas';
 
 // Interfaces para modelar los datos
@@ -9,7 +10,7 @@ interface Employee {
   id: string; 
   name: string; 
   image: string; 
-  status: 'available' | 'busy' | 'on-leave'; // Estado del empleado
+  status: 'available' | 'on-leave'; // Estado del empleado (disponible o ausente)
 }
 
 
@@ -60,7 +61,7 @@ interface DragData {
 @Component({
   selector: 'app-tablero',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './tablero.component.html',
   styleUrls: ['./tablero.component.scss']
 })
@@ -75,30 +76,99 @@ export class TableroComponent implements OnDestroy, OnInit {
   // Estado del tablero
   boardState: BoardState;
 
+  // ID del menú contextual activo
+  activeMenuId: string | null = null;
+
   // Datos del elemento que se está arrastrando
   private dragData: DragData | null = null;
 
-  // Catálogo de empleados
-  private readonly employees: Record<string, Employee> = {
-    '1': { id: '1', name: 'Daniel Picuasi',    image: 'assets/images/daniel.jpg', status: 'available' },
-    '2': { id: '2', name: 'Danilo Cadena',   image: 'assets/images/danilo.jpg', status: 'available' },
-    '3': { id: '3', name: 'Angelo Andy', image: 'assets/images/angelo.jpg', status: 'available' },
-    '4': { id: '4', name: 'Darwin Aldas', image: 'assets/images/darwin.jpg', status: 'available' },
-    '5': { id: '5', name: 'Roberto Guizado',   image: 'assets/images/roberto.jpg', status: 'available' },
-    '6': { id: '6', name: 'Jorge Reyes',  image: 'assets/images/jorger.jpg', status: 'available' },
-    '7': { id: '7', name: 'Rosa Llumigusin',  image: 'assets/images/rosita.jpg', status: 'available' },
-    '8': { id: '8', name: 'Jorge Lucas',  image: 'assets/images/jorgel.jpg', status: 'available' },
-    '9': { id: '9', name: 'Kevin Suarez',  image: 'assets/images/kevin.jpg', status: 'available' },
-    '10': { id: '10', name: 'Marlene Rivera',  image: 'assets/images/marlene.jpg', status: 'available' },
-    '11': { id: '11', name: 'Laura Llangari',  image: 'assets/images/laurita.jpg', status: 'available' },
-    '12': { id: '12', name: 'Diego Ramirez',  image: 'assets/images/diego.jpg', status: 'available' },
+  // Nombre del equipo actual
+  currentTeam: string = 'dev';
+  teamTitle: string = 'Desarrollo';
+  
+  // Catálogo de empleados por equipo
+  private readonly teamEmployees: Record<string, Record<string, Employee>> = {
+    'dev': {
+      '1': { id: '1', name: 'Daniel Picuasi',    image: 'assets/images/daniel.jpg', status: 'available' },
+      '2': { id: '2', name: 'Danilo Cadena',   image: 'assets/images/danilo.jpg', status: 'available' },
+      '3': { id: '3', name: 'Angelo Andy', image: 'assets/images/angelo.jpg', status: 'available' },
+      '4': { id: '4', name: 'Darwin Aldas', image: 'assets/images/darwin.jpg', status: 'available' },
+      '5': { id: '5', name: 'Roberto Guizado',   image: 'assets/images/roberto.jpg', status: 'available' },
+      '6': { id: '6', name: 'Jorge Reyes',  image: 'assets/images/jorger.jpg', status: 'available' },
+      '7': { id: '7', name: 'Rosa Llumigusin',  image: 'assets/images/rosita.jpg', status: 'available' },
+      '8': { id: '8', name: 'Jorge Lucas',  image: 'assets/images/jorgel.jpg', status: 'available' },
+      '9': { id: '9', name: 'Kevin Suarez',  image: 'assets/images/kevin.jpg', status: 'available' },
+      '10': { id: '10', name: 'Marlene Rivera',  image: 'assets/images/marlene.jpg', status: 'available' },
+      '11': { id: '11', name: 'Laura Llangari',  image: 'assets/images/laurita.jpg', status: 'available' },
+      '12': { id: '12', name: 'Diego Ramirez',  image: 'assets/images/diego.jpg', status: 'available' },
+    },
+    'infra': {
+      '101': { id: '101', name: 'Jacqueline Espinoza',    image: 'assets/images/infra/jacquita.jpg', status: 'available' },
+      '102': { id: '102', name: 'Andres Garzón',   image: 'assets/images/infra/andres.jpg', status: 'available' },
+      '103': { id: '103', name: 'Carlos Carbo', image: 'assets/images/infra/carlos.jpg', status: 'available' },
+      '104': { id: '104', name: 'Haydee Rodriguez', image: 'assets/images/infra/haydee.jpg', status: 'available' },
+      '105': { id: '105', name: 'Bryan Morales',   image: 'assets/images/infra/bryan.jpg', status: 'available' },
+      '106': { id: '106', name: 'Roberto Freire',  image: 'assets/images/infra/robertof.jpg', status: 'available' },
+      '107': { id: '107', name: 'Nestor Jaime',  image: 'assets/images/infra/nestor.jpg', status: 'available' },
+      '108': { id: '108', name: 'Rolando Guaman',  image: 'assets/images/infra/rolando.jpg', status: 'available' },
+      '109': { id: '109', name: 'Esteban Pérez',  image: 'assets/images/infra/esteban.jpg', status: 'available' },
+      '110': { id: '110', name: 'Solansh Cornejo',  image: 'assets/images/default.jpg', status: 'available' },
+      '111': { id: '111', name: 'Jessica Granizo',  image: 'assets/images/infra/jessy.jpg', status: 'available' },
+    }
   };
+  
+  // Empleados del equipo actual
+  private employees: Record<string, Employee> = {};
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly zone: NgZone,
+    private readonly route: ActivatedRoute
   ) {
-    // Inicializar el estado del tablero
+    // El estado del tablero se inicializará en ngOnInit cuando tengamos el parámetro de equipo
+    this.boardState = {
+      columnMap: {},
+      orderedColumnIds: [],
+      lastOperation: null
+    };
+  }
+
+  ngOnInit(): void {
+    // Detectar si ya hay un modo oscuro activo
+    this.isDarkMode = document.body.classList.contains('dark-mode');
+    
+    // Obtener el parámetro de equipo de la URL y suscribirse a cambios
+    this.route.paramMap.subscribe(params => {
+      const teamId = params.get('teamId');
+      
+      // Verificar si el equipo existe, si no, usar 'dev' por defecto
+      if (teamId && this.teamEmployees[teamId]) {
+        this.currentTeam = teamId;
+      } else {
+        this.currentTeam = 'dev';
+      }
+      
+      console.log('Equipo cambiado a:', this.currentTeam);
+      
+      // Establecer el título del equipo
+      this.teamTitle = this.currentTeam === 'dev' ? 'Desarrollo' : 'Infraestructura';
+      
+      // Cargar los empleados del equipo seleccionado
+      this.employees = {...this.teamEmployees[this.currentTeam]};
+      
+      // Inicializar el estado del tablero
+      this.initializeBoardState();
+      
+      // Actualizar el título con el rango de fechas
+      this.updateTitle();
+      
+      // Forzar la detección de cambios
+      this.cdr.detectChanges();
+    });
+  }
+  
+  // Inicializar el estado del tablero con los empleados del equipo seleccionado
+  private initializeBoardState(): void {
     const columnMap: ColumnMap = {};
     const weekDays = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
     
@@ -111,12 +181,24 @@ export class TableroComponent implements OnDestroy, OnInit {
       };
     });
 
-    // Asignar empleados a las columnas inicialmente
-    columnMap['Lunes'].items.push(this.employees['11'], this.employees['12']);
-    columnMap['Martes'].items.push(this.employees['10']);
-    columnMap['Miercoles'].items.push(this.employees['5'], this.employees['1'], this.employees['6'], this.employees['8'], this.employees['7'], this.employees['2'], this.employees['9']);
-    columnMap['Jueves'].items.push(this.employees['4']);
-    columnMap['Viernes'].items.push(this.employees['3']);
+    // Distribución inicial de empleados para el equipo de desarrollo
+    if (this.currentTeam === 'dev') {
+      columnMap['Lunes'].items.push(this.employees['11'], this.employees['12']);
+      columnMap['Martes'].items.push(this.employees['10']);
+      columnMap['Miercoles'].items.push(this.employees['5'], this.employees['1'], this.employees['6'], 
+                                      this.employees['8'], this.employees['7'], this.employees['2'], 
+                                      this.employees['9']);
+      columnMap['Jueves'].items.push(this.employees['4']);
+      columnMap['Viernes'].items.push(this.employees['3']);
+    } 
+    // Distribución inicial de empleados para el equipo de infraestructura
+    else if (this.currentTeam === 'infra') {
+      columnMap['Lunes'].items.push(this.employees['101'], this.employees['102']);
+      columnMap['Martes'].items.push(this.employees['103'], this.employees['104']);
+      columnMap['Miercoles'].items.push(this.employees['105']);
+      columnMap['Jueves'].items.push(this.employees['106'], this.employees['107'], this.employees['111']);
+      columnMap['Viernes'].items.push(this.employees['108'],this.employees['109'],this.employees['110']);
+    }
 
     this.boardState = {
       columnMap,
@@ -125,18 +207,40 @@ export class TableroComponent implements OnDestroy, OnInit {
     };
   }
 
-  ngOnInit() {
-    this.updateTitle();
-    // Detectar si ya hay un modo oscuro activo
-    this.isDarkMode = document.body.classList.contains('dark-mode');
-  }
-
   toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
     if (this.isDarkMode) {
       document.body.classList.add('dark-mode');
     } else {
       document.body.classList.remove('dark-mode');
+    }
+  }
+  
+  // Método para cambiar entre equipos
+  switchTeam(teamId: string): void {
+    if (this.currentTeam !== teamId && this.teamEmployees[teamId]) {
+      console.log(`Cambiando de equipo: ${this.currentTeam} -> ${teamId}`);
+      
+      // Actualizar la URL sin recargar la página
+      history.pushState({}, '', `/team/${teamId}`);
+      
+      // Actualizar el estado del componente
+      this.currentTeam = teamId;
+      this.teamTitle = this.currentTeam === 'dev' ? 'Desarrollo' : 'Infraestructura';
+      
+      // Crear una copia nueva del objeto de empleados para forzar la detección de cambios
+      this.employees = {...this.teamEmployees[this.currentTeam]};
+      
+      // Reinicializar el estado del tablero con los nuevos empleados
+      this.initializeBoardState();
+      
+      // Actualizar el título
+      this.updateTitle();
+      
+      // Forzar la detección de cambios
+      this.cdr.detectChanges();
+      
+      console.log('Empleados cargados:', Object.keys(this.employees).length);
     }
   }
 
@@ -163,8 +267,8 @@ export class TableroComponent implements OnDestroy, OnInit {
     const mondayFormatted = this.formatDateInSpanish(nextMonday);
     const fridayFormatted = this.formatDateInSpanish(nextFriday);
     
-    // Actualizar el título
-    this.title = `HORARIO DE DESARROLLO DEL ${mondayFormatted} AL ${fridayFormatted}`;
+    // Actualizar el título con "HORARIO PRESENCIAL" y el rango de fechas
+    this.title = `HORARIO PRESENCIAL DEL ${mondayFormatted} AL ${fridayFormatted}`;
   }
 
   /**
@@ -421,5 +525,194 @@ export class TableroComponent implements OnDestroy, OnInit {
     }
     
     return new Blob([ab], { type: mimeString });
+  }
+
+  // Mostrar/ocultar el menú contextual
+  toggleMenu(event: MouseEvent, employeeId: string, columnId: string): void {
+    event.stopPropagation(); // Evitar que el evento se propague y active el drag
+    event.preventDefault(); // Prevenir comportamiento por defecto
+    
+    console.log('Toggle menu clicked for employee:', employeeId);
+    
+    // Si el menú ya está abierto para este empleado, cerrarlo
+    if (this.activeMenuId === employeeId) {
+      console.log('Closing menu for employee:', employeeId);
+      this.activeMenuId = null;
+      // Eliminar cualquier menú flotante que pudiera existir
+      const existingFloatingMenu = document.getElementById('floating-context-menu');
+      if (existingFloatingMenu) {
+        document.body.removeChild(existingFloatingMenu);
+      }
+    } else {
+      // Si no, abrir el menú para este empleado
+      console.log('Opening menu for employee:', employeeId);
+      this.activeMenuId = employeeId;
+      
+      // Eliminar cualquier menú flotante existente
+      const existingFloatingMenu = document.getElementById('floating-context-menu');
+      if (existingFloatingMenu) {
+        document.body.removeChild(existingFloatingMenu);
+      }
+      
+      // Obtener el empleado y su estado
+      const employee = this.findEmployeeById(employeeId, columnId);
+      if (!employee) {
+        console.error('Employee not found:', employeeId);
+        return;
+      }
+      
+      console.log('Employee found:', employee);
+      const isAvailable = employee.status === 'available';
+      
+      // Crear un nuevo menú flotante
+      const menuButton = event.currentTarget as HTMLElement;
+      const buttonRect = menuButton.getBoundingClientRect();
+      
+      // Crear un nuevo elemento para el menú contextual
+      const floatingMenu = document.createElement('div');
+      floatingMenu.id = 'floating-context-menu';
+      floatingMenu.setAttribute('data-employee-id', employeeId);
+      
+      // Aplicar estilos directamente al menú
+      Object.assign(floatingMenu.style, {
+        position: 'fixed',
+        background: document.body.classList.contains('dark-mode') ? '#23272f' : 'white',
+        borderRadius: '8px',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+        minWidth: '180px',
+        zIndex: '99999',
+        display: 'block',
+        overflow: 'hidden',
+        pointerEvents: 'auto',
+        fontFamily: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        border: document.body.classList.contains('dark-mode') ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)'
+      });
+      
+      // Crear el contenido del menú
+      const menuItem = document.createElement('div');
+      
+      // Aplicar estilos directamente al elemento del menú
+      Object.assign(menuItem.style, {
+        padding: '10px 16px',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        whiteSpace: 'nowrap',
+        fontSize: '14px',
+        color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333',
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: document.body.classList.contains('dark-mode') ? '#23272f' : 'white'
+      });
+      
+      // Agregar evento hover
+      menuItem.addEventListener('mouseover', () => {
+        menuItem.style.backgroundColor = document.body.classList.contains('dark-mode') ? '#2c313a' : '#f5f5f5';
+      });
+      
+      menuItem.addEventListener('mouseout', () => {
+        menuItem.style.backgroundColor = document.body.classList.contains('dark-mode') ? '#23272f' : 'white';
+      });
+      
+      // Crear el texto directamente
+      menuItem.textContent = isAvailable ? 'Marcar como Ausente' : 'Marcar como Disponible';
+      
+      // Agregar evento al elemento del menú
+      menuItem.addEventListener('click', (e) => {
+        e.stopPropagation();
+        console.log('Menu item clicked, toggling status');
+        this.toggleEmployeeStatus(employeeId, columnId);
+      });
+      
+      // Agregar el elemento al menú
+      floatingMenu.appendChild(menuItem);
+      
+      // Calcular la posición del menú
+      const menuTop = buttonRect.bottom + window.scrollY;
+      const menuLeft = Math.max(0, buttonRect.right - 180 + window.scrollX); // 180px es el ancho mínimo del menú
+      
+      // Aplicar estilos de posición
+      floatingMenu.style.position = 'fixed';
+      floatingMenu.style.top = `${menuTop}px`;
+      floatingMenu.style.left = `${menuLeft}px`;
+      floatingMenu.style.zIndex = '99999';
+      floatingMenu.style.display = 'block'; // Asegurarse de que sea visible
+      floatingMenu.style.padding = '4px 0'; // Agregar un poco de padding vertical
+      
+      // Agregar el menú al body del documento
+      document.body.appendChild(floatingMenu);
+      console.log('Menu added to body:', floatingMenu);
+      
+      // Agregar un listener para cerrar el menú cuando se haga clic en cualquier parte
+      const closeMenu = (e: MouseEvent) => {
+        const clickTarget = e.target as HTMLElement;
+        const isMenuButton = menuButton.contains(clickTarget);
+        const isMenuOrChild = floatingMenu.contains(clickTarget);
+        
+        console.log('Click detected, isMenuButton:', isMenuButton, 'isMenuOrChild:', isMenuOrChild);
+        
+        if (!isMenuOrChild && !isMenuButton) {
+          console.log('Click outside menu, closing');
+          this.activeMenuId = null;
+          if (document.body.contains(floatingMenu)) {
+            document.body.removeChild(floatingMenu);
+          }
+          document.removeEventListener('click', closeMenu);
+          this.cdr.detectChanges();
+        }
+      };
+      
+      // Agregar el listener con un pequeño retraso para evitar que se active inmediatamente
+      setTimeout(() => {
+        document.addEventListener('click', closeMenu);
+      }, 100);
+    }
+  }
+  
+  // Método auxiliar para encontrar un empleado por ID
+  private findEmployeeById(employeeId: string, columnId: string): Employee | null {
+    const column = this.boardState.columnMap[columnId];
+    if (column) {
+      const employee = column.items.find(item => item.id === employeeId);
+      return employee || null;
+    }
+    return null;
+  }
+
+  // Cambiar el estado del empleado entre 'available' y 'on-leave'
+  toggleEmployeeStatus(employeeId: string, columnId: string): void {
+    // Encontrar el índice del empleado en la columna
+    const columnItems = this.boardState.columnMap[columnId].items;
+    const employeeIndex = columnItems.findIndex(emp => emp.id === employeeId);
+    
+    if (employeeIndex !== -1) {
+      // Obtener el empleado
+      const employee = columnItems[employeeIndex];
+      
+      // Cambiar el estado
+      const newStatus = employee.status === 'available' ? 'on-leave' : 'available';
+      
+      // Actualizar el estado en la columna
+      columnItems[employeeIndex] = {
+        ...employee,
+        status: newStatus
+      };
+      
+      // Actualizar también en el catálogo de empleados
+      if (this.employees[employeeId]) {
+        this.employees[employeeId].status = newStatus;
+      }
+      
+      // Cerrar el menú contextual
+      this.activeMenuId = null;
+      
+      // Eliminar el menú flotante si existe
+      const floatingMenu = document.getElementById('floating-context-menu');
+      if (floatingMenu && document.body.contains(floatingMenu)) {
+        document.body.removeChild(floatingMenu);
+      }
+      
+      // Forzar la actualización de la vista
+      this.cdr.detectChanges();
+    }
   }
 }

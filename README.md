@@ -1,5 +1,7 @@
 # WorkScheduleBoard
 
+Un tablero de programación de horarios para múltiples equipos desarrollado con Angular. Permite gestionar y visualizar la distribución de empleados en diferentes días de la semana, con soporte para equipos de Desarrollo e Infraestructura.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.11.
 
 ## Development server
@@ -25,3 +27,30 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Funcionalidad Multi-Equipo
+
+Esta aplicación permite gestionar horarios para múltiples equipos:
+
+- **Selector de Equipos**: Botones circulares en la esquina inferior derecha (D para Desarrollo, I para Infraestructura)
+- **Rutas Dinámicas**: Acceso a cada equipo mediante rutas específicas (`/team/dev` y `/team/infra`)
+- **Datos Independientes**: Cada equipo mantiene su propio conjunto de empleados y distribución
+- **Interfaz Unificada**: Mismo diseño y funcionalidad para todos los equipos
+- **Modo Oscuro**: Compatible con el selector de equipos y toda la interfaz
+
+## Despliegue con Docker
+
+Para desplegar la aplicación usando Docker:
+
+```bash
+# Construir la aplicación
+ng build
+
+# Construir la imagen Docker
+docker build -t work-schedule-board .
+
+# Ejecutar el contenedor
+docker run -p 8080:80 work-schedule-board
+```
+
+Luego accede a la aplicación en `http://localhost:8080`

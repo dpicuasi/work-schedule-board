@@ -35,19 +35,13 @@
   // Colores para los diferentes estados
   .status-available {
     .status-dot {
-      background-color: #4CAF50; // Verde
-    }
-  }
-  
-  .status-busy {
-    .status-dot {
-      background-color: #FFC107; // Amarillo
+      background-color: #4CAF50; // Verde - Disponible
     }
   }
   
   .status-on-leave {
     .status-dot {
-      background-color: #F44336; // Rojo
+      background-color: #F44336; // Rojo - Ausente
     }
   }
   
@@ -75,11 +69,7 @@
   }
   
   .status-available-dot {
-    background-color: #4CAF50; // Verde
-  }
-  
-  .status-busy-dot {
-    background-color: #FFC107; // Amarillo
+    background-color: #4CAF50; // Verde - Disponible
   }
   
   .status-on-leave-dot {
@@ -171,10 +161,6 @@ body.dark-mode .legend-dot.status-available-dot {
   background-color: #3fdc7a;
 }
 
-body.dark-mode .legend-dot.status-busy-dot {
-  background-color: #ffe066;
-}
-
 body.dark-mode .legend-dot.status-on-leave-dot {
   background-color: #ff6b6b;
 }
@@ -195,20 +181,93 @@ body.dark-mode .loading-indicator, body.dark-mode .success-message, body.dark-mo
   color: #ffe066;
 }
 
+body.dark-mode .team-button {
+  background-color: #23272f;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  color: #b0b8c1;
+  
+  &:hover {
+    background-color: #2c313a;
+  }
+  
+  &.active {
+    background-color: #4f8cff;
+    color: white;
+  }
+}
+
+body.dark-mode .board-title {
+  color: #4f8cff;
+}
+
+body.dark-mode .team-indicator {
+  color: #b0b8c1;
+  
+  strong {
+    color: #4f8cff;
+  }
+}
+
+body.dark-mode .share-button {
+  background-color: #23272f;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  
+  &:hover {
+    background-color: #2c313a;
+  }
+}
+
+body.dark-mode .theme-toggle-button {
+  background-color: #23272f;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  color: #b0b8c1;
+  
+  &:hover {
+    background-color: #2c313a;
+  }
+}
+
 // Contenedor de acciones
 .floating-buttons {
   position: fixed;
-  bottom: 32px;
-  right: 32px;
+  bottom: 20px;
+  right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  z-index: 100;
-
+  gap: 10px;
+  z-index: 1000;
+  
+  .team-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+      background-color: #f0f0f0;
+    }
+    
+    &.active {
+      background-color: #4c6ef5;
+      color: white;
+    }
+  }
+  
   @media (max-width: 768px) {
     bottom: 16px;
     right: 16px;
-    gap: 10px;
+    gap: 8px;
   }
 }
 
@@ -219,40 +278,23 @@ body.dark-mode .loading-indicator, body.dark-mode .success-message, body.dark-mo
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0;
-  padding: 0;
-  width: 48px;
-  height: 48px;
-  background-color: #25D366;
-  color: white;
+  background-color: white;
   border: none;
   border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: $transition;
-  box-shadow: $shadow;
-
-  img {
-    width: 28px;
-    height: 28px;
-  }
+  transition: transform 0.2s ease;
 
   &:hover {
-    background-color: darken(#25D366, 10%);
-    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
-    transform: translateY(-2px);
+    transform: scale(1.05);
+    background-color: #f0f0f0;
   }
 
-  &:active {
-    transform: translateY(0);
-  }
-
-  @media (max-width: 768px) {
-    width: 38px;
-    height: 38px;
-    img {
-      width: 20px;
-      height: 20px;
-    }
+  img {
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -260,30 +302,26 @@ body.dark-mode .loading-indicator, body.dark-mode .success-message, body.dark-mo
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: #f1f3f4;
+  width: 40px;
+  height: 40px;
+  background-color: white;
   color: #222;
   border: none;
   border-radius: 50%;
-  box-shadow: $shadow;
-  font-size: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: $transition;
-
+  transition: transform 0.2s ease;
+  font-size: 18px;
+  
   &:hover {
-    background: #e0e0e0;
-    color: #111;
+    transform: scale(1.05);
+    background-color: #f0f0f0;
   }
-
-  &:active {
-    background: #d1d1d1;
-  }
-
+  
   @media (max-width: 768px) {
     width: 38px;
     height: 38px;
-    font-size: 18px;
+    font-size: 16px;
   }
 }
 
@@ -302,27 +340,57 @@ body.dark-mode .loading-indicator, body.dark-mode .success-message, body.dark-mo
   display: flex;
   flex-direction: column;
   padding: 16px 24px 24px 24px;
-  border-radius: $border-radius;
+  border-radius: 8px;
   max-width: 1200px;
   margin: 0 auto;
   align-items: center;
   margin-top: 0;
-  // Elimina background aquí para evitar conflicto con dark mode
-
+  
   @media (max-width: 768px) {
     padding: 10px 6px 16px 6px;
     border-radius: 0;
   }
 }
 
+.board-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+  justify-content: center;
+  
+  img {
+    margin: 0;
+  }
+}
 
-// Título del tablero
 .board-title {
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 24px;
-  color: #1a73e8;
   font-size: 28px;
+  font-weight: 700;
+  color: #4c6ef5;
+  text-align: center;
+  margin: 10px 0 5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'Roboto', sans-serif;
+}
+
+.team-indicator {
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  margin: 0 0 20px;
+  color: #555;
+  font-family: 'Roboto', sans-serif;
+  
+  strong {
+    color: #4c6ef5;
+  }
+}
+
+
+// Estilos adicionales para el tablero
+.board-responsive {
   font-weight: 600;
   width: 100%; 
   
@@ -470,6 +538,96 @@ body.dark-mode .employee-name {
   color: #fff !important;
 }
 
+// Estilos para el botón de menú y el menú contextual
+.menu-container {
+  position: relative;
+  margin-left: 5px;
+}
+
+.menu-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .dots {
+    font-size: 18px;
+    line-height: 1;
+    color: #555;
+    font-weight: bold;
+  }
+}
+
+#floating-context-menu {
+  position: fixed; // Posicionamiento global
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  min-width: 180px;
+  z-index: 99999; // Valor extremadamente alto para estar por encima de todo
+  display: block; // Siempre visible
+  overflow: hidden;
+  pointer-events: auto; // Asegurar que los eventos del mouse funcionen
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  
+  .menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap; // Evitar que el texto se rompa en múltiples líneas
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+    
+    &:active {
+      background-color: #e8e8e8;
+    }
+  }
+}
+
+body.dark-mode .menu-button .dots {
+  color: #ddd;
+}
+
+body.dark-mode .menu-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode #floating-context-menu {
+  background: #23272f;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode #floating-context-menu .menu-item {
+  color: #e0e0e0;
+}
+
+body.dark-mode #floating-context-menu .menu-item:hover {
+  background-color: #2c313a;
+}
+
+body.dark-mode #floating-context-menu .menu-item:active {
+  background-color: #343c4a;
+}
+
 body.dark-mode .card-slot {
   background: transparent !important;
 }
@@ -501,6 +659,7 @@ body.dark-mode .empty-slot {
   transition: $transition;
   border-left: 3px solid $primary-color; 
   width: 90%;
+  position: relative;
   
   &:hover {
     background: #f8f9fa;

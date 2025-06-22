@@ -1,4 +1,10 @@
 <div class="floating-buttons">
+  <button class="team-button" (click)="switchTeam('dev')" [class.active]="currentTeam === 'dev'" title="Equipo de Desarrollo">
+    D
+  </button>
+  <button class="team-button" (click)="switchTeam('infra')" [class.active]="currentTeam === 'infra'" title="Equipo de Infraestructura">
+    I
+  </button>
   <button class="share-button" (click)="captureAndShareBoard()" title="Compartir por WhatsApp">
     <img src="assets/images/whatsapp.png" alt="WhatsApp" />
   </button>
@@ -9,17 +15,17 @@
 </div>
 
 <div class="board-container" #boardRef>
-  <img src="assets/images/favicon.png" width="90" height="90" alt="Logo" />
+  <div class="board-header">
+    <img src="assets/images/favicon.png" width="90" height="90" alt="Logo" />
+  </div>
+  
   <h1 class="board-title">{{ title }}</h1>
+  <div class="team-indicator">EQUIPO: <strong>{{ teamTitle.toUpperCase() }}</strong></div>
   
   <div class="status-legend">
     <div class="legend-item">
       <span class="legend-dot status-available-dot"></span>
       <span>Disponible</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-dot status-busy-dot"></span>
-      <span>Ocupado</span>
     </div>
     <div class="legend-item">
       <span class="legend-dot status-on-leave-dot"></span>
@@ -47,6 +53,11 @@
                 <span class="status-indicator" [title]="item.status">
                   <span class="status-dot"></span>
                 </span>
+                <div class="menu-container">
+                  <button class="menu-button" (click)="toggleMenu($event, item.id, column.id)" title="Opciones">
+                    <span class="dots">⋮</span>
+                  </button>
+                </div>
               </div>
             </div>
           }
@@ -73,8 +84,8 @@
 </div>
 
 <!-- Mensaje de última operación (opcional, para depuración) -->
-@if (boardState.lastOperation) {
+<!-- @if (boardState.lastOperation) {
   <div class="operation-info">
     <p>Última operación: {{ boardState.lastOperation.outcome.type }}</p>
   </div>
-}
+} -->
