@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redireccionando...</title>
+  <script>
+    // Obtener la ruta actual
+    var path = window.location.pathname;
+    
+    // Extraer los parámetros de consulta
+    var queryParams = window.location.search;
+    
+    // Si la ruta contiene /tablero, eliminarla
+    if (path.includes('/tablero')) {
+      path = path.replace('/tablero', '');
+    }
+    
+    // Construir la ruta base correcta
+    var basePath = '/work-schedule-board/browser/';
+    
+    // Redirigir a la ruta base con los parámetros de consulta
+    window.location.replace(basePath + queryParams);
+  </script>
+</head>
+<body>
+  <p>Redireccionando...</p>
+</body>
+</html>

@@ -6,6 +6,17 @@
   <base href="/work-schedule-board/browser/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="assets/images/favicon.png">
+  <script>
+    // Script para manejar redirecciones y rutas
+    (function() {
+      // Si estamos en la ruta /tablero, redirigir a la raíz manteniendo los parámetros
+      if (window.location.pathname.includes('/tablero')) {
+        var newPath = window.location.pathname.replace('/tablero', '');
+        var newUrl = window.location.origin + newPath + window.location.search;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    })();
+  </script>
 <style>body{background:#f8f9fa;color:#23272f;transition:background .3s,color .3s}</style><link rel="stylesheet" href="styles-YLY47BGU.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="styles-YLY47BGU.css"></noscript></head>
 <body>
   <app-root></app-root>
