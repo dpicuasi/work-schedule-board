@@ -2,7 +2,7 @@ import {
   Component, ChangeDetectorRef, NgZone, OnDestroy, ViewChild, ElementRef, OnInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import html2canvas from 'html2canvas';
 
 // Interfaces para modelar los datos
@@ -123,7 +123,8 @@ export class TableroComponent implements OnDestroy, OnInit {
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly zone: NgZone,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
   ) {
     // El estado del tablero se inicializará en ngOnInit cuando tengamos el parámetro de equipo
     this.boardState = {
@@ -221,26 +222,23 @@ export class TableroComponent implements OnDestroy, OnInit {
     if (this.currentTeam !== teamId && this.teamEmployees[teamId]) {
       console.log(`Cambiando de equipo: ${this.currentTeam} -> ${teamId}`);
       
-      // Actualizar la URL sin recargar la página
-      history.pushState({}, '', `/team/${teamId}`);
-      
-      // Actualizar el estado del componente
-      this.currentTeam = teamId;
-      this.teamTitle = this.currentTeam === 'dev' ? 'Desarrollo' : 'Infraestructura';
-      
-      // Crear una copia nueva del objeto de empleados para forzar la detección de cambios
-      this.employees = {...this.teamEmployees[this.currentTeam]};
-      
-      // Reinicializar el estado del tablero con los nuevos empleados
-      this.initializeBoardState();
-      
-      // Actualizar el título
-      this.updateTitle();
-      
-      // Forzar la detección de cambios
-      this.cdr.detectChanges();
-      
-      console.log('Empleados cargados:', Object.keys(this.employees).length);
+      // Usar el Router de Angular para navegar sin recargar la página
+      this.router.navigate(['/team', teamId], { skipLocationChange: false, replaceUrl: true })
+        .then(() => {
+          // El cambio de ruta activará ngOnInit que manejará la actualización del estado
+          console.log('Navegación completada a:', teamId);
+        })
+        .catch(error => {
+          console.error('Error al navegar:', error);
+          
+          // Si hay un error en la navegación, actualizar manualmente
+          this.currentTeam = teamId;
+          this.teamTitle = this.currentTeam === 'dev' ? 'Desarrollo' : 'Infraestructura';
+          this.employees = {...this.teamEmployees[this.currentTeam]};
+          this.initializeBoardState();
+          this.updateTitle();
+          this.cdr.detectChanges();
+        });
     }
   }
 
